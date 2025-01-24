@@ -1,0 +1,7 @@
+$schema: 1.0
+name: project-sample-2
+image: microsoftwindowsdesktop_windows-ent-cpc_win11-21h2-ent-cpc-m365
+tasks:
+    - name: winget
+      parameters:
+        package: notepadplusplus # comment
