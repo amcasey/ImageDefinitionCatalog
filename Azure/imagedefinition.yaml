@@ -1,0 +1,35 @@
+$schema: 1.0
+name: azure-extension-test
+image: microsoftwindowsdesktop_windows-ent-cpc_win11-24H2-ent-cpc
+tasks:
+    - name: powershell
+      parameters:
+        command: |
+          # PrintAzureState.ps1
+
+          # 1. Recursively list files under C:\Packages\Plugins\
+          $pluginPath = 'C:\Packages\Plugins'
+          if (Test-Path $pluginPath) {
+              Write-Host "Directory contents of ${pluginPath}:`n"
+              Get-ChildItem -Path $pluginPath -Recurse | ForEach-Object {
+                  Write-Host $_.FullName
+              }
+          } else {
+              Write-Host "Directory not found: $pluginPath"
+          }
+
+          # 2. Recursively print keys/values under HKLM:\SOFTWARE\Microsoft\Windows Azure\HandlerState
+          $regPath = 'HKLM:\SOFTWARE\Microsoft\Windows Azure\HandlerState'
+          if (Test-Path $regPath) {
+              Write-Host "`nRegistry contents of ${regPath}:`n"
+              # Print values at this level
+              Get-ItemProperty -Path $regPath | Format-List
+
+              # Then recurse into any subkeys
+              Get-ChildItem -Path $regPath -Recurse | ForEach-Object {
+                  Write-Host "`nSubkey: $($_.PSPath)"
+                  Get-ItemProperty -Path $_.PSPath | Format-List
+              }
+          } else {
+              Write-Host "Registry path not found: $regPath"
+          }
