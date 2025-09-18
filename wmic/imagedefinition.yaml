@@ -1,5 +1,5 @@
 $schema: 1.0
-name: wmic-test
+name: wmic-cmd-test
 image: microsoftwindowsdesktop_windows-ent-cpc_win11-24H2-ent-cpc
 tasks:
     - name: powershell
@@ -7,58 +7,54 @@ tasks:
         command: |
           # Check cmdlet availability and search for Microsoft Cloud Managed Desktop Extension
 
-          $appName = "Microsoft Cloud Managed Desktop Extension"
-
-          Write-Host "=== Cmdlet Availability Check ===" -ForegroundColor Yellow
+          Write-Host '=== Cmdlet Availability Check ==='
 
           # Check Get-CimInstance availability
           $cimAvailable = $null -ne (Get-Command Get-CimInstance -ErrorAction SilentlyContinue)
-          Write-Host "Get-CimInstance available: $cimAvailable" -ForegroundColor $(if($cimAvailable){"Green"}else{"Red"})
+          Write-Host 'Get-CimInstance available: ' $cimAvailable
 
           # Check Get-WmiObject availability
           $wmiAvailable = $null -ne (Get-Command Get-WmiObject -ErrorAction SilentlyContinue)
-          Write-Host "Get-WmiObject available: $wmiAvailable" -ForegroundColor $(if($wmiAvailable){"Green"}else{"Red"})
+          Write-Host 'Get-WmiObject available: ' $wmiAvailable
 
-          Write-Host "`n=== Application Search Results ===" -ForegroundColor Yellow
+          Write-Host '`n=== Application Search Results ==='
 
           # Search using Get-CimInstance if available
           if ($cimAvailable) {
               try {
-                  Write-Host "Searching with Get-CimInstance..." -ForegroundColor Cyan
-                  $cimApp = Get-CimInstance -Class Win32_Product -Filter "Name='$appName'" -ErrorAction Stop
+                  Write-Host 'Searching with Get-CimInstance...'
+                  $cimApp = Get-CimInstance -Class Win32_Product -Filter \\\"Name = 'Microsoft Cloud Managed Desktop Extension'\\\" -ErrorAction Stop
                   if ($cimApp) {
-                      Write-Host "Found '$appName' via CIM" -ForegroundColor Green
-                      Write-Host "  Version: $($cimApp.Version)" -ForegroundColor Gray
-                      Write-Host "  Install Date: $($cimApp.InstallDate)" -ForegroundColor Gray
+                      Write-Host 'Found app via CIM'
+                      Write-Host '  Version: ' $cimApp.Version
+                      Write-Host '  Install Date: ' $cimApp.InstallDate
                   } else {
-                      Write-Host "'$appName' NOT found via CIM" -ForegroundColor Red
+                      Write-Host 'app NOT found via CIM'
                   }
               } catch {
-                  Write-Host "Error searching with CIM: $($_.Exception.Message)" -ForegroundColor Red
+                  Write-Host 'Error searching with CIM: ' $($_.Exception.Message)
               }
           } else {
-              Write-Host "Skipping CIM search - cmdlet not available" -ForegroundColor Yellow
+              Write-Host 'Skipping CIM search - cmdlet not available'
           }
 
           # Search using Get-WmiObject if available
           if ($wmiAvailable) {
               try {
-                  Write-Host "`nSearching with Get-WmiObject..." -ForegroundColor Cyan
-                  $wmiApp = Get-WmiObject -Class Win32_Product -Filter "Name='$appName'" -ErrorAction Stop
+                  Write-Host 'Searching with Get-WmiObject...'
+                  $wmiApp = Get-WmiObject -Class Win32_Product -Filter \\\"Name = 'Microsoft Cloud Managed Desktop Extension'\\\" -ErrorAction Stop
                   if ($wmiApp) {
-                      Write-Host "Found '$appName' via WMI" -ForegroundColor Green
-                      Write-Host "  Version: $($wmiApp.Version)" -ForegroundColor Gray
-                      Write-Host "  Install Date: $($wmiApp.InstallDate)" -ForegroundColor Gray
+                      Write-Host 'Found app via WMI'
+                      Write-Host '  Version: ' $wmiApp.Version
+                      Write-Host '  Install Date: ' $wmiApp.InstallDate
                   } else {
-                      Write-Host "'$appName' NOT found via WMI" -ForegroundColor Red
+                      Write-Host 'app NOT found via WMI'
                   }
               } catch {
-                  Write-Host "Error searching with WMI: $($_.Exception.Message)" -ForegroundColor Red
+                  Write-Host 'Error searching with WMI: ' $($_.Exception.Message)
               }
           } else {
-              Write-Host "`nSkipping WMI search - cmdlet not available" -ForegroundColor Yellow
+              Write-Host '`nSkipping WMI search - cmdlet not available'
           }
 
-          Write-Host "`n=== Summary ===" -ForegroundColor Yellow
-          Write-Host "PowerShell Version: $($PSVersionTable.PSVersion)" -ForegroundColor Gray
-          Write-Host "OS Version: $([System.Environment]::OSVersion.VersionString)" -ForegroundColor Gray
+          throw 'Fail so we get logs'
